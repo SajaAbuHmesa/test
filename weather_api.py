@@ -7,14 +7,11 @@ Original file is located at
     https://colab.research.google.com/drive/1LXPPduQGU4WuC1gWlxuO3DJX7PKC4QL_
 """
 
-!pip install fastapi uvicorn requests
-
 from fastapi import FastAPI, Query
 import requests
 
 app = FastAPI()
 
-# إعدادات API
 OPENWEATHER_API_KEY = "d220a1b133c215e83c381ebc061d2980"
 OPENWEATHER_URL = "https://api.openweathermap.org/data/2.5/forecast"
 
@@ -24,9 +21,7 @@ def get_weather(
     lat: float = Query(..., description="خط العرض"),
     lon: float = Query(..., description="خط الطول")
 ):
-    """إرجاع بيانات الطقس لمدة 5 أيام كـ JSON"""
-
-    # استدعاء API الطقس
+    
     params = {
         "q": city,
         "lat": lat,
@@ -42,9 +37,8 @@ def get_weather(
 
     data = response.json()
 
-    # تجميع بيانات الطقس لمدة 5 أيام
     forecast_list = []
-    for forecast in data["list"]:  # تحتوي القائمة على توقعات كل 3 ساعات
+    for forecast in data["list"]:  
         forecast_list.append({
             "date_time": forecast["dt_txt"],
             "temperature": forecast["main"]["temp"],
