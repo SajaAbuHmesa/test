@@ -61,3 +61,8 @@ def get_weather(
         "longitude": lon if lon else "Unknown",
         "forecasts": forecast_list
     }
+    
+# Root endpoint
+@app.get("/")
+def read_root():
+    return {"message": "Weather API is live! Please use /weather endpoint."}
