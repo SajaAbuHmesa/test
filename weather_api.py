@@ -1,11 +1,11 @@
-
-
 from fastapi import FastAPI, Query
 import requests
+import os  # To access environment variables
 
 app = FastAPI()
 
-OPENWEATHER_API_KEY = "d220a1b133c215e83c381ebc061d2980"
+# Read the API key from environment variables
+OPENWEATHER_API_KEY = os.getenv("OPENWEATHER_API_KEY")
 OPENWEATHER_URL = "https://api.openweathermap.org/data/2.5/forecast"
 
 @app.get("/weather")
@@ -14,7 +14,13 @@ def get_weather(
     lat: float = Query(..., description="خط العرض"),
     lon: float = Query(..., description="خط الطول")
 ):
-    
+    """إرجاع بيانات الطقس لمدة 5 أيام كـ JSON"""
+
+    # Ensure the API key is available
+    if OPENWEATHER_API_KEY is None:
+        return {"error": "API key is not set in environment variables"}
+
+    # استدعاء API الطقس
     params = {
         "q": city,
         "lat": lat,
@@ -30,8 +36,9 @@ def get_weather(
 
     data = response.json()
 
+    # تجميع بيانات الطقس لمدة 5 أيام
     forecast_list = []
-    for forecast in data["list"]:  
+    for forecast in data["list"]:  # تحتوي القائمة على توقعات كل 3 ساعات
         forecast_list.append({
             "date_time": forecast["dt_txt"],
             "temperature": forecast["main"]["temp"],
@@ -47,4 +54,3 @@ def get_weather(
         "longitude": lon,
         "forecasts": forecast_list
     }
-
