@@ -10,9 +10,9 @@ OPENWEATHER_URL = "https://api.openweathermap.org/data/2.5/forecast"
 
 @app.get("/weather")
 def get_weather(
-    city: str = Query(..., description="اسم المدينة"),
-    lat: float = Query(..., description="خط العرض"),
-    lon: float = Query(..., description="خط الطول")
+    city: str = Query(None, description="اسم المدينة (اختياري)"),
+    lat: float = Query(None, description="خط العرض (اختياري)"),
+    lon: float = Query(None, description="خط الطول (اختياري)")
 ):
     """إرجاع بيانات الطقس لمدة 5 أيام كـ JSON"""
 
@@ -20,15 +20,22 @@ def get_weather(
     if OPENWEATHER_API_KEY is None:
         return {"error": "API key is not set in environment variables"}
 
+    # Validate if either city or lat/lon is provided
+    if not city and (lat is None or lon is None):
+        return {"error": "يجب توفير إما اسم المدينة أو إحداثيات الموقع (خط العرض والطول)"}
+
     # استدعاء API الطقس
     params = {
-        "q": city,
-        "lat": lat,
-        "lon": lon,
         "appid": OPENWEATHER_API_KEY,
         "units": "metric",
         "lang": "ar"
     }
+
+    if city:
+        params["q"] = city
+    if lat and lon:
+        params["lat"] = lat
+        params["lon"] = lon
 
     response = requests.get(OPENWEATHER_URL, params=params)
     if response.status_code != 200:
@@ -49,8 +56,8 @@ def get_weather(
         })
 
     return {
-        "city": city,
-        "latitude": lat,
-        "longitude": lon,
+        "city": city if city else "Unknown",
+        "latitude": lat if lat else "Unknown",
+        "longitude": lon if lon else "Unknown",
         "forecasts": forecast_list
     }
