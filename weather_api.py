@@ -6,6 +6,7 @@ app = FastAPI()
 
 # Read the API key from environment variables
 OPENWEATHER_API_KEY = os.getenv("OPENWEATHER_API_KEY")
+
 OPENWEATHER_URL = "https://api.openweathermap.org/data/2.5/forecast"
 
 @app.get("/weather")
@@ -55,14 +56,10 @@ def get_weather(
             "description": forecast["weather"][0]["description"]
         })
 
-    return {
-        "city": city if city else "Unknown",
-        "latitude": lat if lat else "Unknown",
-        "longitude": lon if lon else "Unknown",
-        "forecasts": forecast_list
-    }
-    
+    return forecast_list  # Return only the forecast data
+
 # Root endpoint
 @app.get("/")
 def read_root():
     return {"message": "Weather API is live! Please use /weather endpoint."}
+
